@@ -3,36 +3,61 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: hefurrer <marvin@42.fr>                    +#+  +:+       +#+         #
+#    By: hefurrer <marvin@42lausanne.ch>            +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
-#    Created: 2023/06/05 08:08:48 by hefurrer          #+#    #+#              #
-#    Updated: 2023/06/05 08:08:51 by hefurrer         ###   ########.fr        #
+#    Created: 2023/09/25 08:08:22 by hefurrer          #+#    #+#              #
+#    Updated: 2023/09/25 08:08:25 by hefurrer         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
-NAME := philo
-SRC_DIR := src/
-OBJ_DIR := obj/
-SRC_FILES := main utils parsing
-SRC := $(addprefix $(SRC_DIR), $(addsuffix .c, $(SRC_FILES)))
-OBJ := $(addprefix $(OBJ_DIR), $(addsuffix .o, $(SRC_FILES)))
-CC := gcc -Wall -Werror -Wextra
+ECHO = @echo
+PRINT = @printf
+RED = \033[31m
+GREEN = \033[32m
+YELLOW = \033[33m
+INVERT = \033[7m
+RESETTXT = \033[0m
+BOLD = \033[1m
+
+SRC_PATH = src/
+SRC = main.c thread.c utils.c init_utils.c utils2.c utils3.c
+SRCS = $(addprefix $(SRC_PATH),$(SRC))
+
+OBJ_PATH = obj/
+OBJ = $(SRC:%.c=%.o)
+OBJS = $(addprefix $(OBJ_PATH),$(OBJ))
+
+NAME 	= Philosopher
+AR 		= ar rcs
+CC		= gcc
+RM		= rm -f
+
+INCLUDES = -I includes/
+
+CFLAGS = -g -pthread -Werror -Wextra -Wall #-fsanitize=thread
 
 all: $(NAME)
 
-$(OBJ_DIR)%.o: $(SRC_DIR)%.c
-	mkdir -p obj
-	$(CC) $< -c -o $@
-
 $(NAME): $(OBJ)
-	$(CC) $(OBJ) -o $(NAME)
+		$(ECHO) "$(YELLOW)Compilation de Philosopher...$(RESETTXT)"
+		@ gcc $(CFLAGS) $(INCLUDES) $(OBJS) -o $@
+		$(ECHO) "$(GREEN)$(BOLD)Compilation Terminée !!!$(RESETTXT)"
+
+%.o:$(SRC_PATH)%.c
+		$(PRINT) "$(YELLOW)Generation des objets...$(RESETTXT)\r"
+		@mkdir -p $(OBJ_PATH)
+		@$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $(OBJ_PATH)$@
 
 clean:
-	rm -rf $(OBJ_DIR)
+		$(ECHO) "$(RED)Suppression des objets...$(RESETTXT)"
+		@$(RM) $(OBJS)
+		$(ECHO) "$(GREEN)$(BOLD)Terminé !$(RESETTXT)"
 
-fclean: clean
-	rm -f $(NAME)
+fclean:	clean
+		$(ECHO) "$(RED)Suppression de pipex et libft.a...$(RESETTXT)"
+		@$(RM) $(NAME)
+		$(ECHO) "$(GREEN)$(BOLD)Terminé !$(RESETTXT)"
 
-re: fclean all
+re:		fclean all
 
 .PHONY: all clean fclean re
